@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 const server = app.listen(PORT, () => {
+  console.log(`Express Running in Port: ${PORT}`);
   logger.log(`Server running on port ${PORT}`);
 });
 

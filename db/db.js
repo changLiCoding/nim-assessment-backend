@@ -14,6 +14,7 @@ console.log("👹", connectionString);
 mongoose
   .connect(`${connectionString}/${DB_NAME}?retryWrites=true&w=majority`)
   .then(() => {
+    console.log("👹MongoDB Connected");
     logger.log("Connected to MongoDB");
   })
   .catch((error) => logger.error(error.message));

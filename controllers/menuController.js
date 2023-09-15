@@ -3,6 +3,7 @@ const MenuItems = require("../db/models/menuItems.js");
 const getAll = async (req, res) => {
   try {
     const menu = await MenuItems.getAll();
+    console.log(menu);
     res.send(menu);
   } catch (error) {
     res.status(500).send(error);
