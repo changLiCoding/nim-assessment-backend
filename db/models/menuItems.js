@@ -81,4 +81,27 @@ const create = async (body) => {
   }
 };
 
-module.exports = { getAll, getOne, create, MenuItems, updateOne, deleteOne };
+const searchNameAndDescription = async (q) => {
+  try {
+    const menuItems = await MenuItems.find({
+      $or: [
+        { name: { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } }
+      ]
+    });
+
+    return menuItems;
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  MenuItems,
+  updateOne,
+  deleteOne,
+  searchNameAndDescription
+};

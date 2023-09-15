@@ -46,4 +46,21 @@ const create = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create, update, deleteById };
+const searchNameAndDescription = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const menus = await MenuItems.searchNameAndDescription(q);
+    res.send(menus);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  update,
+  deleteById,
+  searchNameAndDescription
+};
