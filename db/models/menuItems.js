@@ -42,6 +42,21 @@ const getOne = async (id) => {
   }
 };
 
+const updateOne = async (id, body) => {
+  try {
+    const menuItem = await MenuItems.findById(id);
+    menuItem.name = body.name;
+    menuItem.price = body.price;
+    menuItem.description = body.description;
+    menuItem.imageUrl = body.imageUrl;
+    const savedItem = await menuItem.save();
+
+    return savedItem;
+  } catch (error) {
+    return error;
+  }
+};
+
 const create = async (body) => {
   try {
     const menuItem = await MenuItems.create(body);
@@ -51,4 +66,4 @@ const create = async (body) => {
   }
 };
 
-module.exports = { getAll, getOne, create, MenuItems };
+module.exports = { getAll, getOne, create, MenuItems, updateOne };
