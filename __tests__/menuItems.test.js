@@ -20,7 +20,6 @@ describe("menuItems", () => {
   describe("getAll", () => {
     it("should return an array of menu items", async () => {
       const menuItems = await getAll();
-      console.log(menuItems.length);
       expect(menuItems).toBeInstanceOf(Array);
     });
   });
@@ -42,8 +41,6 @@ describe("menuItems", () => {
 
   afterAll(async () => {
     await preload();
-    console.log("Preloaded DB");
     await mongoose.connection.close();
-    console.log("Closed DB connection");
   });
 });
