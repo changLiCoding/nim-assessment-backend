@@ -5,6 +5,7 @@ const getLogger = require("./logger");
 const apiRouter = require("./routes/apiRouter");
 
 const { PORT } = process.env;
+console.log("👹👹👹👹👹👹👹", PORT);
 const logger = getLogger("server");
 const app = express();
 
