@@ -83,7 +83,7 @@ const getByStatus = async (status) => {
   return orders;
 };
 
-const getTotalSale = async () => {
+const getTotalSale = async (startDate = new Date(0), endDate = new Date()) => {
   // const orders = await Promise.all([
   //   getByStatus("confirmed"),
   //   getByStatus("pending"),
@@ -110,9 +110,14 @@ const getTotalSale = async () => {
   try {
     const totalSale = await Order.aggregate([
       // GET ALL ORDERS EXCEPT CANCELLED
+      // FILTER OUT DATE NOT IN RANGE
       {
         $match: {
-          status: { $in: ["confirmed", "pending", "delivered"] }
+          $and: [
+            { createdAt: { $gte: new Date(startDate) } },
+            { createdAt: { $lte: new Date(endDate) } },
+            { status: { $in: ["confirmed", "pending", "delivered"] } }
+          ]
         }
       },
 
