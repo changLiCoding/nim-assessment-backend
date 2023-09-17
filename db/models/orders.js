@@ -1,4 +1,5 @@
 const mongoose = require("../db.js");
+const { MenuItems } = require("./menuItems.js");
 
 const orderSchema = new mongoose.Schema({
   name: {
@@ -82,6 +83,30 @@ const getByStatus = async (status) => {
   return orders;
 };
 
+const getTotalSale = async () => {
+  const orders = await Promise.all([
+    getByStatus("confirmed"),
+    getByStatus("pending"),
+    getByStatus("delivered"),
+    getByStatus("cancelled")
+  ]);
+
+  const totalSale = orders.flat().reduce(async (prevPromise, order) => {
+    // GET TOTAL FOR EACH ORDER ITEM
+    const itemPromises = order.items.map(async (item) => {
+      const menu = await MenuItems.findById(item.item);
+      return menu.price * item.quantity;
+    });
+
+    const itemTotals = await Promise.all(itemPromises);
+    const prev = await prevPromise;
+    // GET TOTAL FOR EACH ORDER
+    return prev + itemTotals.reduce((acc, curr) => acc + curr, 0);
+  }, Promise.resolve(0));
+
+  return totalSale;
+};
+
 module.exports = {
   getAll,
   getOne,
@@ -89,5 +114,6 @@ module.exports = {
   update,
   remove,
   getByStatus,
+  getTotalSale,
   Order
 };
