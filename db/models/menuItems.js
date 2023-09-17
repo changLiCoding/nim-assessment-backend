@@ -57,16 +57,10 @@ const deleteOne = async (id) => {
 
 const updateOne = async (id, body) => {
   try {
-    const menuItem = await MenuItems.findById(id);
-
-    Object.keys(body).forEach((key) => {
-      menuItem[key] = body[key];
+    const updatedMenu = await MenuItems.findByIdAndUpdate({ _id: id }, body, {
+      new: true
     });
-
-    // menuItem.updatedAt = new Date();
-    const savedItem = await menuItem.save();
-
-    return savedItem;
+    return updatedMenu;
   } catch (error) {
     return error;
   }
@@ -85,8 +79,8 @@ const searchNameAndDescription = async (q) => {
   try {
     const menuItems = await MenuItems.find({
       $or: [
-        { name: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } }
+        { name: { $regex: new RegExp(q, "i") } },
+        { description: { $regex: new RegExp(q, "i") } }
       ]
     });
 
