@@ -92,17 +92,18 @@ const getTotalSale = async () => {
   ]);
 
   const totalSale = orders.flat().reduce(async (prevPromise, order) => {
-    // GET TOTAL FOR EACH ORDER ITEM
+    // GET SUBTOTAL FOR THE ORDER ITEMS
     const itemPromises = order.items.map(async (item) => {
       const menu = await MenuItems.findById(item.item);
       return menu.price * item.quantity;
     });
-
+    // WAIT FOR ALL SUBTOTALS TO BE CALCULATED
     const itemTotals = await Promise.all(itemPromises);
+    // WAIT FOR PREVIOUS TOTAL TO BE CALCULATED
     const prev = await prevPromise;
     // GET TOTAL FOR EACH ORDER
     return prev + itemTotals.reduce((acc, curr) => acc + curr, 0);
-  }, Promise.resolve(0));
+  }, 0);
 
   return totalSale;
 };
