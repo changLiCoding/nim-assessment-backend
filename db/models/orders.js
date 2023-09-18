@@ -1,5 +1,4 @@
 const mongoose = require("../db.js");
-const { MenuItems } = require("./menuItems.js");
 
 const orderSchema = new mongoose.Schema({
   name: {
@@ -93,7 +92,8 @@ const getTotalSale = async (startDate = new Date(0), endDate = new Date()) => {
 
   // const totalSale = orders.flat().reduce(async (prevPromise, order) => {
   //   // GET SUBTOTAL FOR THE ORDER ITEMS
-  //   const itemPromises = order.items.map(async (item) => {
+  //   const itemPromises=order.items.map(async (item) => {
+
   //     const menu = await MenuItems.findById(item.item);
   //     return menu.price * item.quantity;
   //   });
@@ -161,10 +161,7 @@ const getTotalSale = async (startDate = new Date(0), endDate = new Date()) => {
       }
     ]);
 
-    if (totalSale.length > 0) {
-      return totalSale[0].totalSale;
-    }
-    return 0; // No orders match the specified statuses
+    return totalSale.length > 0 ? totalSale[0].totalSale : 0;
   } catch (error) {
     return error;
   }
