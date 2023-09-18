@@ -82,6 +82,91 @@ const getByStatus = async (status) => {
   return orders;
 };
 
+const getTotalSale = async (startDate = new Date(0), endDate = new Date()) => {
+  // const orders = await Promise.all([
+  //   getByStatus("confirmed"),
+  //   getByStatus("pending"),
+  //   getByStatus("delivered"),
+  //   getByStatus("cancelled")
+  // ]);
+
+  // const totalSale = orders.flat().reduce(async (prevPromise, order) => {
+  //   // GET SUBTOTAL FOR THE ORDER ITEMS
+  //   const itemPromises=order.items.map(async (item) => {
+
+  //     const menu = await MenuItems.findById(item.item);
+  //     return menu.price * item.quantity;
+  //   });
+  //   // WAIT FOR ALL SUBTOTALS TO BE CALCULATED
+  //   const itemTotals = await Promise.all(itemPromises);
+  //   // WAIT FOR PREVIOUS TOTAL TO BE CALCULATED
+  //   const prev = await prevPromise;
+  //   // GET TOTAL FOR EACH ORDER
+  //   return prev + itemTotals.reduce((acc, curr) => acc + curr, 0);
+  // }, 0);
+
+  // return totalSale;
+
+  try {
+    const totalSale = await Order.aggregate([
+      // GET ALL ORDERS EXCEPT CANCELLED
+      // FILTER OUT DATE NOT IN RANGE
+      {
+        $match: {
+          $and: [
+            { createdAt: { $gte: new Date(startDate) } },
+            { createdAt: { $lte: new Date(endDate) } },
+            { status: { $in: ["confirmed", "pending", "delivered"] } }
+          ]
+        }
+      },
+
+      // UNWIND THE ITMES ARRAY TO CREATE A SEPARATE DOCUMENT FOR EACH ITEM
+      { $unwind: "$items" },
+      // Lookup the corresponding MenuItems for each item
+      {
+        $lookup: {
+          from: "menuitems",
+          localField: "items.item",
+          foreignField: "_id",
+          as: "menuItems"
+        }
+      },
+      // Project the fields needed for calculation
+      {
+        $project: {
+          quantity: "$items.quantity",
+          price: { $arrayElemAt: ["$menuItems.price", 0] }
+        }
+      },
+      // Calculate the subtotal for each item in each order
+      {
+        $project: {
+          subtotal: { $multiply: ["$quantity", "$price"] }
+        }
+      },
+      // Group the results by order and calculate the total sale for each order
+      {
+        $group: {
+          _id: "$_id",
+          totalSale: { $sum: "$subtotal" }
+        }
+      },
+      // Calculate the total sale for all orders
+      {
+        $group: {
+          _id: null,
+          totalSale: { $sum: "$totalSale" }
+        }
+      }
+    ]);
+
+    return totalSale.length > 0 ? totalSale[0].totalSale : 0;
+  } catch (error) {
+    return error;
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
@@ -89,5 +174,6 @@ module.exports = {
   update,
   remove,
   getByStatus,
+  getTotalSale,
   Order
 };
